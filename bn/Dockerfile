@@ -3,8 +3,8 @@ FROM maven:3.8.5-openjdk-17 AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Fase 2: Ejecución
-FROM openjdk:17-jdk-slim
+# Fase 2: Ejecución (Usando Eclipse Temurin, más estable)
+FROM eclipse-temurin:17-jdk-focal
 COPY --from=build /target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
