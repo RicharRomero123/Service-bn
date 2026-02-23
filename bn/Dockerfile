@@ -1,10 +1,14 @@
-# Fase 1: Compilación
-FROM maven:3.8.5-openjdk-17 AS build
+# Fase 1: Compilación (Usando JDK 21)
+FROM eclipse-temurin:21-jdk-focal AS build
 COPY . .
-RUN mvn clean package -DskipTests
 
-# Fase 2: Ejecución (Usando Eclipse Temurin, más estable)
-FROM eclipse-temurin:17-jdk-focal
-COPY --from=build /target/*.jar app.jar
+# Damos permisos de ejecución al gradlew y compilamos el proyecto dentro de 'bn'
+RUN chmod +x ./bn/gradlew
+RUN ./bn/gradlew -p bn clean bootJar -x test
+
+# Fase 2: Ejecución
+FROM eclipse-temurin:21-jre-focal
+# En Gradle, el archivo se genera en build/libs/
+COPY --from=build /bn/build/libs/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
