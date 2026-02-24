@@ -1,15 +1,15 @@
-# Fase 1: Compilación
+# Fase 1: Build
 FROM eclipse-temurin:21-jdk AS build
+WORKDIR /app
+# Copiamos el contenido de la carpeta bn al contenedor
 COPY . .
-
-# Damos permisos y ejecutamos Gradle desde la carpeta 'bn'
-RUN chmod +x ./bn/gradlew
-RUN ./bn/gradlew -p bn clean bootJar -x test
+# Damos permisos y ejecutamos el build de Gradle
+RUN chmod +x ./gradlew
+RUN ./gradlew clean bootJar -x test
 
 # Fase 2: Ejecución
 FROM eclipse-temurin:21-jre
-# Copiamos el jar generado por Gradle
-COPY --from=build /bn/build/libs/*.jar app.jar
-
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
